@@ -55,18 +55,18 @@
 
     <!-- HEADER BAR -->
     <header class="h-[75px] bg-slate-900/90 border border-emerald-900/50 backdrop-blur-md rounded-2xl px-6 flex items-center justify-between shadow-lg shrink-0">
-        <!-- Musolla Info & Logo/Icon -->
+        <!-- Musolla Info & Logo -->
         <div class="flex items-center gap-4">
-            <div id="musolla-logo-container" class="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-700 rounded-xl flex items-center justify-center text-slate-950 text-2xl shadow-md border border-emerald-300/30 shrink-0 overflow-hidden relative">
-                <i id="musolla-logo-icon" class="fa-solid fa-mosque"></i>
-                <img id="musolla-logo-img" src="" class="w-full h-full object-cover hidden" alt="Logo Musolla">
+            <div id="musolla-logo-container" class="w-12 h-12 bg-slate-900 rounded-xl flex items-center justify-center text-slate-950 text-2xl shadow-md border border-emerald-300/30 shrink-0 overflow-hidden relative">
+                <i id="musolla-logo-icon" class="fa-solid fa-mosque text-emerald-400"></i>
+                <img id="musolla-logo-img" src="" class="w-full h-full object-contain p-1 hidden" alt="Logo Musolla" onerror="handleLogoError()" referrerpolicy="no-referrer">
             </div>
             <div>
                 <h1 id="musolla-name" class="text-xl font-extrabold text-white tracking-wide flex items-center gap-2">
                     MUSOLLA AL-QADISIAH
                 </h1>
                 <p id="musolla-location" class="text-xs text-emerald-400 font-medium tracking-wider uppercase">
-                    <i class="fa-solid fa-location-dot text-amber-400 mr-1"></i> SEPINTAR / GOMBAK (SGR01)
+                    <i class="fa-solid fa-location-dot text-amber-400 mr-1"></i> SEPINTAR / GOMBAK
                 </p>
             </div>
         </div>
@@ -97,7 +97,7 @@
         </div>
     </header>
 
-    <!-- MAIN TV CONTENT GRID (Locked Kiri & Kanan Lanskap TV) -->
+    <!-- MAIN TV CONTENT GRID -->
     <main class="flex-1 grid grid-cols-12 gap-3 my-2 overflow-hidden h-[calc(100vh-140px)] min-h-0">
 
         <!-- LEFT PANEL: Slide Gambar & Info Pemakluman (8 Cols) -->
@@ -144,7 +144,7 @@
                         Kuliah Maghrib Khas: Indahnya Akhlak Rasulullah SAW
                     </h3>
                     <p id="announcement-desc" class="text-xs text-slate-300 mt-0.5 line-clamp-2 leading-relaxed">
-                        Penceramah Jemputan: Ustaz Haji Ahmad Dahlan. Semua jemaah dijemput hadir bersama ahli keluarga. Jamuan ringan disediakan selepas majlis.
+                        Penceramah Jemputan: Ustaz Muhammad Naim. Semua jemaah dijemput hadir bersama ahli keluarga.
                     </p>
                 </div>
             </div>
@@ -262,7 +262,7 @@
         </div>
         <div class="flex-1 overflow-hidden relative w-full flex items-center">
             <div id="ticker-text" class="ticker-move text-slate-200 font-medium text-xs">
-                Selamat Datang ke Musolla Al-Qadisiah • Sila rapatkan saf • Tabung Imarah Musolla Maybank: 5621-0011-9988 • Kebersihan Musolla Tanggungjawab Bersama.
+                Selamat Datang ke Musolla Al-Qadisiah • Sila rapatkan saf • Kebersihan Musolla Tanggungjawab Bersama.
             </div>
         </div>
     </footer>
@@ -285,8 +285,8 @@
                     <input type="url" id="cfg-remote-url" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-xs" placeholder="Tetapkan pautan jika config.json berada di server luar">
                 </div>
                 <div>
-                    <label class="block text-slate-400 mb-1">URL Logo Musolla (Gambar Direct Link)</label>
-                    <input type="url" id="cfg-logo" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white font-mono text-xs" placeholder="https://i.postimg.cc/xxx/logo.png">
+                    <label class="block text-slate-400 mb-1">URL Logo Musolla (Direct Image Link)</label>
+                    <input type="url" id="cfg-logo" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white font-mono text-xs" placeholder="https://i.postimg.cc/xxx/logo.jpg">
                 </div>
                 <div class="grid grid-cols-2 gap-3">
                     <div>
@@ -323,7 +323,7 @@
         const defaultConfig = {
             musollaName: "MUSOLLA AL-QADISIAH",
             musollaLocation: "SEPINTAR / GOMBAK (SGR01)",
-            logoUrl: "",
+            logoUrl: "https://i.postimg.cc/YSQXzMcZ/Whats-App-Image-2024-07-05-at-8-42-44-AM.jpg",
             announcementTitle: "Kuliah Maghrib Khas: Indahnya Akhlak Rasulullah SAW",
             announcementDesc: "Penceramah Jemputan: Ustaz Muhammad Naim. Semua jemaah dijemput hadir bersama ahli keluarga.",
             tickerText: "Selamat Datang ke Musolla Al-Qadisiah • Sila rapatkan saf • Tabung Imarah Musolla Muamalat: 1210000878715 • Kebersihan Musolla Tanggungjawab Bersama.",
@@ -480,10 +480,12 @@
                 
                 const bgImg = document.createElement('img');
                 bgImg.src = imgSrc;
+                bgImg.referrerPolicy = "no-referrer";
                 bgImg.className = 'absolute inset-0 w-full h-full object-cover blur-2xl opacity-40 scale-110';
                 
                 const mainImg = document.createElement('img');
                 mainImg.src = imgSrc;
+                mainImg.referrerPolicy = "no-referrer";
                 mainImg.className = 'relative max-w-full max-h-full object-contain z-10 p-1 rounded-lg';
 
                 slide.appendChild(bgImg);
@@ -516,7 +518,6 @@
         }
 
         async function fetchRemoteSyncConfig() {
-            // Priority 1: Check manual remote URL if configured, otherwise auto-fetch local ./config.json from same repo
             const targetUrl = appConfig.remoteSyncUrl && appConfig.remoteSyncUrl.trim() !== '' 
                 ? appConfig.remoteSyncUrl 
                 : './config.json';
@@ -534,7 +535,6 @@
                 if (rData.tickerText) appConfig.tickerText = rData.tickerText;
                 
                 if (rData.images && Array.isArray(rData.images) && rData.images.length > 0) {
-                    // Update images only if list changed
                     if (JSON.stringify(rData.images) !== JSON.stringify(activeImageList)) {
                         activeImageList = rData.images;
                         initSlideshow();
@@ -565,6 +565,15 @@
             document.getElementById('announcement-title').innerText = appConfig.announcementTitle;
             document.getElementById('announcement-desc').innerText = appConfig.announcementDesc;
             document.getElementById('ticker-text').innerText = appConfig.tickerText;
+        }
+
+        function handleLogoError() {
+            const iconEl = document.getElementById('musolla-logo-icon');
+            const logoImgEl = document.getElementById('musolla-logo-img');
+            if (iconEl && logoImgEl) {
+                logoImgEl.classList.add('hidden');
+                iconEl.classList.remove('hidden');
+            }
         }
 
         function openSettingsModal() {
@@ -610,7 +619,7 @@
             setInterval(updateClock, 1000);
             updateClock();
             setInterval(fetchPrayerTimes, 6 * 60 * 60 * 1000);
-            setInterval(fetchRemoteSyncConfig, 10000); // Check for config changes every 10 seconds
+            setInterval(fetchRemoteSyncConfig, 10000);
             fetchRemoteSyncConfig();
         };
     </script>

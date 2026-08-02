@@ -1,14 +1,24 @@
 {
-"musollaName": "MUSOLLA AL-QADISIAH",
-"musollaLocation": "SEPINTAR / GOMBAK",
-"logoUrl": "logo musolla (2).jpeg",
-"announcementTitle": "Kuliah Maghrib Khas: Indahnya Akhlak Rasulullah SAW",
-"announcementDesc": "Penceramah Jemputan: Ustaz Muhammad Naim. Semua jemaah dijemput hadir bersama ahli keluarga.",
-"tickerText": "Selamat Datang ke Musolla Al-Qadisiah • Sila rapatkan saf • Tabung Imarah Musolla Muamalat: 1210000878715 • Kebersihan Musolla Tanggungjawab Bersama.",
-"images": [
-"https://images.unsplash.com/photo-1542810634-71277d95dcbb?auto=format&fit=crop&w=1200&q=80",
-"https://images.unsplash.com/photo-1564769625905-50e93615e769?auto=format&fit=crop&w=1200&q=80",
-"https://i.postimg.cc/N00RzDmy/organisasi-musolla.png",
-"https://i.postimg.cc/KYKbGKMK/Whats-App-Image-2026-07-24-at-06-51-53.jpg"
-]
+  "musollaName": "MUSOLLA AL-QADISIAH",
+  "musollaLocation": "SEPINTAR / GOMBAK",
+  "logoUrl": "logo.jpeg",
+  "announcements": [
+    {
+      "title": "1. Kuliah Maghrib Khas: Indahnya Akhlak Rasulullah SAW",
+      "desc": "Penceramah Jemputan: Ustaz Muhammad Naim. Semua jemaah dijemput hadir bersama ahli keluarga."
+    },
+    {
+      "title": "2. Ujian 2 dan Trial SPM",
+      "desc": "bittaufiq wan najah."
+    },
+    {
+      "title": "3. Kesihatan",
+      "desc": "Sila Jaga Kesihatan Diri Anda."
+    }
+  ],
+  "tickerText": "Selamat Datang ke Musolla Al-Qadisiah • Sila rapatkan saf • Tabung Imarah Musolla Muamalat: 1210000878715 • Kebersihan Musolla Tanggungjawab Bersama.",
+  "images": [
+    "https://i.postimg.cc/N00RzDmy/organisasi-musolla.png",
+    "https://i.postimg.cc/KYKbGKMK/Whats-App-Image-2026-07-24-at-06-51-53.jpg"
+  ]
 }

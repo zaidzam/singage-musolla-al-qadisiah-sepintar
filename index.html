@@ -61,7 +61,7 @@
         <div class="flex items-center gap-4">
             <div id="musolla-logo-container" class="w-12 h-12 bg-slate-900 rounded-xl flex items-center justify-center text-slate-950 text-2xl shadow-md border border-emerald-300/30 shrink-0 overflow-hidden relative">
                 <i id="musolla-logo-icon" class="fa-solid fa-mosque text-emerald-400"></i>
-                <img id="musolla-logo-img" src="" class="w-full h-full object-contain p-1 hidden" alt="Logo Musolla" onerror="handleLogoError()" referrerpolicy="no-referrer">
+                <img id="musolla-logo-img" class="w-full h-full object-contain p-1 hidden" alt="Logo Musolla" referrerpolicy="no-referrer">
             </div>
             <div>
                 <h1 id="musolla-name" class="text-xl font-extrabold text-white tracking-wide flex items-center gap-2">
@@ -105,13 +105,13 @@
             
             <!-- IMAGE SLIDESHOW GALLERY -->
             <div class="flex-1 bg-slate-900/80 border border-slate-800 rounded-2xl overflow-hidden shadow-lg relative group min-h-0">
-                <div id="slideshow-container" class="w-full h-full relative">
+                <div id="slideshow-container" class="w-full h-full relative flex items-center justify-center bg-slate-950">
                     <!-- Dynamic Slide Images -->
                 </div>
 
-                <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-slate-950/20 pointer-events-none z-10"></div>
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-950/50 via-transparent to-slate-950/20 pointer-events-none z-20"></div>
 
-                <div class="absolute top-3 left-3 z-20">
+                <div class="absolute top-3 left-3 z-30">
                     <div class="bg-slate-950/90 backdrop-blur-md border border-emerald-500/40 px-3 py-1.5 rounded-xl shadow flex items-center gap-2">
                         <i class="fa-solid fa-image text-emerald-400 text-sm"></i>
                         <span id="slide-caption" class="text-xs font-extrabold text-slate-100">
@@ -121,7 +121,7 @@
                 </div>
 
                 <!-- Slide Indicators -->
-                <div class="absolute bottom-3 right-3 z-20 flex items-center gap-1.5 bg-slate-950/80 backdrop-blur-md px-3 py-1.5 rounded-full border border-slate-800" id="slide-indicators">
+                <div class="absolute bottom-3 right-3 z-30 flex items-center gap-1.5 bg-slate-950/80 backdrop-blur-md px-3 py-1.5 rounded-full border border-slate-800" id="slide-indicators">
                     <!-- Dynamic dots -->
                 </div>
             </div>
@@ -406,12 +406,12 @@
             isya: "20:39"
         };
 
-        function handleLogoError() {
+        window.handleLogoError = function() {
             const logoImg = document.getElementById('musolla-logo-img');
             const logoIcon = document.getElementById('musolla-logo-icon');
             if (logoImg) logoImg.classList.add('hidden');
             if (logoIcon) logoIcon.classList.remove('hidden');
-        }
+        };
 
         function loadConfigUI() {
             document.getElementById('musolla-name').innerText = appConfig.musollaName || defaultConfig.musollaName;
@@ -422,9 +422,14 @@
             const logoIcon = document.getElementById('musolla-logo-icon');
 
             if (appConfig.logoUrl) {
+                logoImg.onload = function() {
+                    logoImg.classList.remove('hidden');
+                    logoIcon.classList.add('hidden');
+                };
+                logoImg.onerror = function() {
+                    window.handleLogoError();
+                };
                 logoImg.src = appConfig.logoUrl;
-                logoImg.classList.remove('hidden');
-                logoIcon.classList.add('hidden');
             } else {
                 logoImg.classList.add('hidden');
                 logoIcon.classList.remove('hidden');
@@ -456,13 +461,29 @@
             }
 
             activeImageList.forEach((url, idx) => {
-                const img = document.createElement('img');
-                img.src = url;
-                img.referrerPolicy = 'no-referrer';
-                img.className = `absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${idx === 0 ? 'opacity-100 z-0' : 'opacity-0 -z-10'}`;
-                img.id = `slide-img-${idx}`;
-                img.onerror = () => { img.src = 'https://placehold.co/1200x800/0f172a/64748b?text=Gambar+Musolla'; };
-                container.appendChild(img);
+                const slideDiv = document.createElement('div');
+                slideDiv.id = `slide-item-${idx}`;
+                slideDiv.className = `absolute inset-0 w-full h-full transition-opacity duration-1000 flex items-center justify-center overflow-hidden ${idx === 0 ? 'opacity-100 z-10' : 'opacity-0 z-0'}`;
+
+                // Ambient Blurred Background untuk mengisi ruang kosong
+                const bgImg = document.createElement('img');
+                bgImg.src = url;
+                bgImg.referrerPolicy = 'no-referrer';
+                bgImg.className = 'absolute inset-0 w-full h-full object-cover blur-xl opacity-35 scale-110 pointer-events-none';
+
+                // Gambar Utama (Dipapar 100% tanpa dipotong / cropped)
+                const mainImg = document.createElement('img');
+                mainImg.src = url;
+                mainImg.referrerPolicy = 'no-referrer';
+                mainImg.className = 'relative z-10 max-w-full max-h-full object-contain p-1 drop-shadow-2xl';
+                mainImg.onerror = function() { 
+                    mainImg.src = 'https://placehold.co/1200x800/0f172a/64748b?text=Gambar+Musolla'; 
+                    bgImg.src = mainImg.src;
+                };
+
+                slideDiv.appendChild(bgImg);
+                slideDiv.appendChild(mainImg);
+                container.appendChild(slideDiv);
 
                 const dot = document.createElement('div');
                 dot.className = `w-2 h-2 rounded-full transition-all ${idx === 0 ? 'bg-amber-400 w-5' : 'bg-slate-600'}`;
@@ -478,20 +499,20 @@
 
         function nextSlide() {
             if (activeImageList.length <= 1) return;
-            const currentImg = document.getElementById(`slide-img-${slideIndex}`);
+            const currentSlide = document.getElementById(`slide-item-${slideIndex}`);
             const currentDot = document.getElementById(`slide-dot-${slideIndex}`);
 
             slideIndex = (slideIndex + 1) % activeImageList.length;
 
-            const nextImg = document.getElementById(`slide-img-${slideIndex}`);
+            const nextSlide = document.getElementById(`slide-item-${slideIndex}`);
             const nextDot = document.getElementById(`slide-dot-${slideIndex}`);
 
-            if (currentImg && nextImg) {
-                currentImg.classList.remove('opacity-100', 'z-0');
-                currentImg.classList.add('opacity-0', '-z-10');
+            if (currentSlide && nextSlide) {
+                currentSlide.classList.remove('opacity-100', 'z-10');
+                currentSlide.classList.add('opacity-0', 'z-0');
 
-                nextImg.classList.remove('opacity-0', '-z-10');
-                nextImg.classList.add('opacity-100', 'z-0');
+                nextSlide.classList.remove('opacity-0', 'z-0');
+                nextSlide.classList.add('opacity-100', 'z-10');
             }
 
             if (currentDot && nextDot) {
@@ -532,7 +553,7 @@
             const wrapper = document.getElementById('announcement-wrapper');
             if (wrapper) {
                 wrapper.classList.add('opacity-0', 'translate-y-2');
-                setTimeout(() => {
+                setTimeout(function() {
                     document.getElementById('announcement-badge').innerHTML = `<i class="fa-solid fa-bullhorn mr-1"></i> ${ann.badge || 'Pemakluman'}`;
                     document.getElementById('announcement-title').innerText = ann.title || '';
                     document.getElementById('announcement-desc').innerText = ann.desc || '';
@@ -557,27 +578,33 @@
             displayAnnouncement(announcementIndex);
         }
 
-        async function fetchPrayerTimes() {
-            try {
-                const res = await fetch('https://www.e-solat.gov.my/index.php?r=esolatApi/takwimsolat&period=today&zone=SGR01');
-                if (res.ok) {
-                    const data = await res.json();
+        function fetchPrayerTimes() {
+            fetch('https://www.e-solat.gov.my/index.php?r=esolatApi/takwimsolat&period=today&zone=SGR01')
+                .then(function(res) {
+                    if (res.ok) return res.json();
+                    throw new Error('Gagal memuat turun waktu solat');
+                })
+                .then(function(data) {
                     if (data && data.prayerTime && data.prayerTime[0]) {
                         prayerTimesData = data.prayerTime[0];
                         updatePrayerUI(prayerTimesData);
-                        return;
+                    } else {
+                        prayerTimesData = fallbackPrayerTimes;
+                        updatePrayerUI(fallbackPrayerTimes);
                     }
-                }
-            } catch(e) {
-                console.log("Menggunakan fallback prayer times.");
-            }
-            prayerTimesData = fallbackPrayerTimes;
-            updatePrayerUI(fallbackPrayerTimes);
+                })
+                .catch(function(e) {
+                    console.log("Menggunakan fallback prayer times:", e);
+                    prayerTimesData = fallbackPrayerTimes;
+                    updatePrayerUI(fallbackPrayerTimes);
+                });
         }
 
         function parseTimeStringToToday(timeStr) {
             const now = new Date();
-            const [hours, minutes] = timeStr.split(':').map(Number);
+            const parts = timeStr.split(':');
+            const hours = parseInt(parts[0], 10);
+            const minutes = parseInt(parts[1], 10);
             const target = new Date(now);
             target.setHours(hours, minutes, 0, 0);
             return target;
@@ -585,7 +612,9 @@
 
         function format12Hour(timeStr) {
             if (!timeStr) return '--:--';
-            const [h, m] = timeStr.split(':').map(Number);
+            const parts = timeStr.split(':');
+            const h = parseInt(parts[0], 10);
+            const m = parseInt(parts[1], 10);
             const period = h >= 12 ? 'PM' : 'AM';
             const hours12 = h % 12 || 12;
             return `${hours12.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')} ${period}`;
@@ -638,9 +667,9 @@
                 { name: 'Isya\'', time: parseTimeStringToToday(prayerTimesData.isha || prayerTimesData.isya), cardId: 'prayer-isya' }
             ];
 
-            let next = list.find(p => p.time > now);
+            let next = list.find(function(p) { return p.time > now; });
 
-            document.querySelectorAll('.prayer-card').forEach(c => c.classList.remove('prayer-active'));
+            document.querySelectorAll('.prayer-card').forEach(function(c) { c.classList.remove('prayer-active'); });
 
             if (!next) {
                 // Selepas Isya, setkan ke Subuh keesokan harinya
@@ -664,12 +693,14 @@
             document.getElementById('next-prayer-time').innerText = `Waktu Solat: ${hours12.toString().padStart(2, '0')}:${next.time.getMinutes().toString().padStart(2, '0')} ${period}`;
         }
 
-        async function fetchRemoteSyncConfig() {
+        function fetchRemoteSyncConfig() {
             if (!appConfig.remoteSyncUrl) return;
-            try {
-                const res = await fetch(appConfig.remoteSyncUrl + '?t=' + Date.now());
-                if (res.ok) {
-                    const remoteData = await res.json();
+            fetch(appConfig.remoteSyncUrl + '?t=' + Date.now())
+                .then(function(res) {
+                    if (res.ok) return res.json();
+                    throw new Error('Remote sync failed');
+                })
+                .then(function(remoteData) {
                     if (JSON.stringify(remoteData) !== JSON.stringify(appConfig)) {
                         appConfig = Object.assign({}, appConfig, remoteData);
                         localStorage.setItem('musolla_config', JSON.stringify(appConfig));
@@ -679,17 +710,17 @@
                         initSlideshow();
                         initAnnouncementCarousel();
                     }
-                }
-            } catch(e) {
-                console.log("Ralat remote sync:", e);
-            }
+                })
+                .catch(function(e) {
+                    console.log("Ralat remote sync:", e);
+                });
         }
 
-        function handleFileUpload(event) {
+        window.handleFileUpload = function(event) {
             const files = event.target.files;
             if (!files || files.length === 0) return;
 
-            Array.from(files).forEach(file => {
+            Array.from(files).forEach(function(file) {
                 if (!file.type.startsWith('image/')) return;
                 const reader = new FileReader();
                 reader.onload = function(e) {
@@ -699,9 +730,9 @@
                 reader.readAsDataURL(file);
             });
             event.target.value = '';
-        }
+        };
 
-        function addImageUrlFromInput() {
+        window.addImageUrlFromInput = function() {
             const input = document.getElementById('cfg-new-img-url');
             const url = input ? input.value.trim() : '';
             if (url) {
@@ -709,12 +740,12 @@
                 input.value = '';
                 renderImageThumbnails();
             }
-        }
+        };
 
-        function removeImageFromTemp(index) {
+        window.removeImageFromTemp = function(index) {
             tempImageList.splice(index, 1);
             renderImageThumbnails();
-        }
+        };
 
         function renderImageThumbnails() {
             const container = document.getElementById('cfg-image-thumbnails');
@@ -726,7 +757,7 @@
                 return;
             }
 
-            tempImageList.forEach((imgUrl, idx) => {
+            tempImageList.forEach(function(imgUrl, idx) {
                 const item = document.createElement('div');
                 item.className = 'relative group aspect-video bg-slate-950 rounded-lg overflow-hidden border border-slate-700 flex items-center justify-center';
                 
@@ -734,13 +765,13 @@
                 img.src = imgUrl;
                 img.className = 'w-full h-full object-cover';
                 img.referrerPolicy = 'no-referrer';
-                img.onerror = () => { img.src = 'https://placehold.co/300x200/1e293b/94a3b8?text=Gambar+Ralat'; };
+                img.onerror = function() { img.src = 'https://placehold.co/300x200/1e293b/94a3b8?text=Gambar+Ralat'; };
 
                 const delBtn = document.createElement('button');
                 delBtn.type = 'button';
                 delBtn.className = 'absolute top-1 right-1 bg-red-600 hover:bg-red-500 text-white p-1 rounded-md text-[10px] shadow transition-all opacity-90 group-hover:opacity-100';
                 delBtn.innerHTML = '<i class="fa-solid fa-trash"></i>';
-                delBtn.onclick = () => removeImageFromTemp(idx);
+                delBtn.onclick = function() { window.removeImageFromTemp(idx); };
 
                 const numBadge = document.createElement('span');
                 numBadge.className = 'absolute bottom-1 left-1 bg-slate-950/80 text-amber-400 font-bold text-[9px] px-1.5 py-0.5 rounded';
@@ -753,7 +784,7 @@
             });
         }
 
-        function openSettingsModal() {
+        window.openSettingsModal = function() {
             document.getElementById('cfg-name').value = appConfig.musollaName || '';
             document.getElementById('cfg-zone').value = appConfig.musollaLocation || '';
             document.getElementById('cfg-logo').value = appConfig.logoUrl || '';
@@ -765,13 +796,13 @@
             renderImageThumbnails();
 
             document.getElementById('settings-modal').classList.remove('hidden');
-        }
+        };
 
-        function closeSettingsModal() {
+        window.closeSettingsModal = function() {
             document.getElementById('settings-modal').classList.add('hidden');
-        }
+        };
 
-        function saveSettings() {
+        window.saveSettings = function() {
             appConfig.musollaName = document.getElementById('cfg-name').value || defaultConfig.musollaName;
             appConfig.musollaLocation = document.getElementById('cfg-zone').value || defaultConfig.musollaLocation;
             appConfig.logoUrl = document.getElementById('cfg-logo').value.trim();
@@ -795,12 +826,12 @@
             loadConfigUI();
             initSlideshow();
             initAnnouncementCarousel();
-            closeSettingsModal();
-        }
+            window.closeSettingsModal();
+        };
 
-        window.addEventListener('keydown', (e) => {
+        window.addEventListener('keydown', function(e) {
             if((e.key === 's' || e.key === 'S') && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
-                openSettingsModal();
+                window.openSettingsModal();
             }
         });
 
